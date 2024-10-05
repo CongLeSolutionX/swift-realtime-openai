@@ -130,7 +130,7 @@ public final class Conversation: Sendable {
 	///   - text: The text message to send.
 	///   - response: The response configuration (optional). If provided, a response will be requested after sending the message.
 	public func send(from role: Item.ItemRole, text: String, response: Response.Config? = nil) async throws {
-		try await send(event: .createConversationItem(Item(message: Item.Message(id: String(randomLength: 32), from: role, content: [.input_text(text)]))))
+		try await send(event: .createConversationItem(Item(message: Item.Message(id: String(randomLength: 32), from: role, content: [.inputText(text)]))))
 		try await send(event: .createResponse(response))
 	}
 
@@ -166,9 +166,9 @@ private extension Conversation {
 				entries.append(event.item)
 			case let .conversationItemInputAudioTranscriptionCompleted(event):
 				updateEvent(id: event.itemId) { message in
-					guard case let .input_audio(audio) = message.content[event.contentIndex] else { return }
+					guard case let .inputAudio(audio) = message.content[event.contentIndex] else { return }
 
-					message.content[event.contentIndex] = .input_audio(.init(audio: audio.audio, transcript: event.transcript))
+					message.content[event.contentIndex] = .inputAudio(.init(audio: audio.audio, transcript: event.transcript))
 				}
 			case let .conversationItemInputAudioTranscriptionFailed(event):
 				errorStream.yield(event.error)

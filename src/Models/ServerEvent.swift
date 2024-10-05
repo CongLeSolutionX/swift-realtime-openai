@@ -1,3 +1,5 @@
+import Foundation
+
 /// Represents events sent from the server to the client.  Conforms to `Sendable`.
 public enum ServerEvent: Sendable {
     /// Event indicating an error occurred on the server.

@@ -1,3 +1,5 @@
+import Foundation
+
 /// Represents a generic item in a conversation.
 /// Conforming to `Identifiable`, `Equatable`, and `Sendable` for ease of use in SwiftUI and concurrency.
 public enum Item: Identifiable, Equatable, Sendable {

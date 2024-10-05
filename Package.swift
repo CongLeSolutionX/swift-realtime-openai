@@ -10,6 +10,10 @@ let package = Package(
     ],
     targets: [
         .target(name: "OpenAI", dependencies: [], path: "Sources/OpenAI"),
-        .testTarget(name: "OpenAITests", dependencies: ["OpenAI"], path: "Tests/OpenAITests"),
+        .testTarget(
+            name: "OpenAITests", 
+            dependencies: ["OpenAI"], // Add your main target as a dependency.
+            path: "Tests/OpenAITests" // The path to your tests directory.
+            ),
     ]
 )

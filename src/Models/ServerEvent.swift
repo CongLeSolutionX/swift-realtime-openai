@@ -1,105 +1,115 @@
-import Foundation
-
+/// Represents events sent from the server to the client.  Conforms to `Sendable`.
 public enum ServerEvent: Sendable {
-	public struct ErrorEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// Details of the error.
-		public let error: ServerError
-	}
+    /// Event indicating an error occurred on the server.
+    public struct ErrorEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// Details of the error.
+        public let error: ServerError
+    }
 
-	public struct SessionEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The session resource.
-		public let session: Session
-	}
+    /// Event related to a session.
+    public struct SessionEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The updated session information.
+        public let session: Session
+    }
 
-	public struct ConversationCreatedEvent: Decodable, Sendable {
-		public struct Conversation: Codable, Sendable {
-			/// The unique ID of the conversation.
-			public let id: String
-		}
+    /// Event indicating a conversation was created.
+    public struct ConversationCreatedEvent: Decodable, Sendable {
+        /// Represents a conversation.
+        public struct Conversation: Codable, Sendable {
+            /// The unique ID of the conversation.
+            public let id: String
+        }
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The created conversation.
+        public let conversation: Conversation
+    }
 
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The conversation resource.
-		public let conversation: Conversation
-	}
+    /// Event indicating an input audio buffer was committed.
+    public struct InputAudioBufferCommittedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The ID of the item preceding the newly inserted item (optional).
+        public let previousItemId: String?
+        /// The ID of the newly created user message item.
+        public let itemId: String
+    }
 
-	public struct InputAudioBufferCommittedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the preceding item after which the new item will be inserted.
-		public let previousItemId: String?
-		/// The ID of the user message item that will be created.
-		public let itemId: String
-	}
+    /// Event indicating an input audio buffer was cleared.
+    public struct InputAudioBufferClearedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+    }
 
-	public struct InputAudioBufferClearedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-	}
+    /// Event indicating speech started in the input audio buffer.
+    public struct InputAudioBufferSpeechStartedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// Milliseconds since the session started when speech was detected.
+        public let audioStartMs: Int
+        /// The ID of the user message item that will be created when speech stops.
+        public let itemId: String
+    }
 
-	public struct InputAudioBufferSpeechStartedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// Milliseconds since the session started when speech was detected.
-		public let audioStartMs: Int
-		/// The ID of the user message item that will be created when speech stops.
-		public let itemId: String
-	}
+    /// Event indicating speech stopped in the input audio buffer.
+    public struct InputAudioBufferSpeechStoppedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// Milliseconds since the session started when speech stopped.
+        public let audioEndMs: Int
+        /// The ID of the user message item that will be created.
+        public let itemId: String
+    }
 
-	public struct InputAudioBufferSpeechStoppedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// Milliseconds since the session started when speech stopped.
-		public let audioEndMs: Int
-		/// The ID of the user message item that will be created.
-		public let itemId: String
-	}
+    /// Event indicating a conversation item was created.
+    public struct ConversationItemCreatedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The ID of the item preceding the newly created item (optional).
+        public let previousItemId: String?
+        /// The created item.
+        public let item: Item
+    }
 
-	public struct ConversationItemCreatedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the preceding item.
-		public let previousItemId: String?
-		/// The item that was created.
-		public let item: Item
-	}
+    /// Event for completed transcription of user input audio.
+    public struct ConversationItemInputAudioTranscriptionCompletedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// ID of the user message item.
+        public let itemId: String
+        /// Index of the transcribed audio content within the message.
+        public let contentIndex: Int
+        /// The transcribed text from the audio.
+        public let transcript: String
+    }
 
-	public struct ConversationItemInputAudioTranscriptionCompletedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the user message item.
-		public let itemId: String
-		/// The index of the content part containing the audio.
-		public let contentIndex: Int
-		/// The transcribed text.
-		public let transcript: String
-	}
+    /// Event for a failed transcription of user input audio.
+    public struct ConversationItemInputAudioTranscriptionFailedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// ID of the user message item.
+        public let itemId: String
+        /// Index of the audio content that failed transcription within the message.
+        public let contentIndex: Int
+        /// Details of the transcription error.
+        public let error: ServerError
+    }
 
-	public struct ConversationItemInputAudioTranscriptionFailedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the user message item.
-		public let itemId: String
-		/// The index of the content part containing the audio.
-		public let contentIndex: Int
-		/// Details of the transcription error.
-		public let error: ServerError
-	}
-
-	public struct ConversationItemTruncatedEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the assistant message item that was truncated.
-		public let itemId: String
-		/// The index of the content part that was truncated.
-		public let contentIndex: Int
-		/// The duration up to which the audio was truncated, in milliseconds.
-		public let audioEndMs: Int
-	}
+	/// Event indicating a conversation item was truncated.
+    public struct ConversationItemTruncatedEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The ID of the truncated assistant message item.
+        public let itemId: String
+        /// The index of the truncated content part.
+        public let contentIndex: Int
+        /// The duration up to which the audio was truncated, in milliseconds.
+        public let audioEndMs: Int
+    }
 
 	public struct ConversationItemDeletedEvent: Decodable, Sendable {
 		/// The unique ID of the server event.
@@ -361,9 +371,13 @@ public enum ServerEvent: Sendable {
 	case rateLimitsUpdated(RateLimitsUpdatedEvent)
 }
 
+// MARK: - Extensions (Identifiable and Decodable)
+
 extension ServerEvent: Identifiable {
+	/// The `id` of the `ServerEvent`, which is the `eventId`.
 	public var id: String {
 		switch self {
+			// All cases covered with event.eventId
 			case let .error(event):
 				return event.eventId
 			case let .sessionCreated(event):

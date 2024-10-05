@@ -1,47 +1,76 @@
+/// Represents a session, which encapsulates the configuration and state for interactions with the backend.  Conforms to `Codable`, `Equatable`, and `Sendable`.
 public struct Session: Codable, Equatable, Sendable {
-	public enum Modality: String, Codable, Sendable {
-		case text
-		case audio
-	}
+    /// Represents the supported modalities for communication (e.g., text, audio).
+    public enum Modality: String, Codable, Sendable {
+        /// Text-based communication.
+        case text
+        /// Audio-based communication.
+        case audio
+    }
 
-	public enum Voice: String, Codable, Sendable {
-		case alloy
-		case echo
-		case fable
-		case onyx
-		case nova
-		case shimmer
-	}
+    /// Represents available voices for audio responses.
+    public enum Voice: String, Codable, Sendable {
+        /// Alloy voice.
+        case alloy
+        /// Echo voice.
+        case echo
+        /// Fable voice.
+        case fable
+        /// Onyx voice.
+        case onyx
+        /// Nova voice.
+        case nova
+        /// Shimmer voice.
+        case shimmer
+    }
 
-	public enum AudioFormat: String, Codable, Sendable {
-		case pcm16
-		case g711_ulaw
-		case g711_alaw
-	}
+    /// Represents supported audio formats.
+    public enum AudioFormat: String, Codable, Sendable {
+        /// PCM 16-bit audio.
+        case pcm16
+        /// G.711 u-law encoded audio.
+        case g711Ulaw = "g711_ulaw"
+        /// G.711 a-law encoded audio.
+        case g711Alaw = "g711_alaw"
+    }
 
-	public struct InputAudioTranscription: Codable, Equatable, Sendable {
-		public var model: String
+    /// Configuration for input audio transcription.
+    public struct InputAudioTranscription: Codable, Equatable, Sendable {
+        /// The model used for transcription (e.g., "whisper-1").  Defaults to "whisper-1".
+        public var model: String
+        
+        /// Initializes `InputAudioTranscription` with a specified model.
+        /// - Parameter model: The transcription model to use.
+        public init(model: String = "whisper-1") {
+            self.model = model
+        }
+    }
 
-		public init(model: String = "whisper-1") {
-			self.model = model
-		}
-	}
+    /// Configuration for turn detection in audio conversations.
+    public struct TurnDetection: Codable, Equatable, Sendable {
+        ///  The type of turn detection to use.
+        public enum TurnDetectionType: String, Codable, Sendable {
+            /// Server-side Voice Activity Detection (VAD).
+            case serverVad = "server_vad"
+            /// No turn detection.
+            case none
+        }
 
-	public struct TurnDetection: Codable, Equatable, Sendable {
-		public enum TurnDetectionType: String, Codable, Sendable {
-			case serverVad = "server_vad"
-			case none
-		}
+        /// The type of turn detection.
+        public var type: TurnDetectionType
+        /// The activation threshold for VAD (a value between 0.0 and 1.0).
+        public var threshold: Double
+        /// The amount of audio (in milliseconds) to include before detected speech.
+        public var prefixPaddingMs: Int
+        /// The duration of silence (in milliseconds) required to trigger the end of a turn.
+        public var silenceDurationMs: Int
 
-		/// The type of turn detection.
-		public var type: TurnDetectionType
-		/// Activation threshold for VAD (0.0 to 1.0).
-		public var threshold: Double
-		/// Amount of audio to include before speech starts (in milliseconds).
-		public var prefixPaddingMs: Int
-		/// Duration of silence to detect speech stop (in milliseconds).
-		public var silenceDurationMs: Int
-
+		/// Initialize TurnDetection
+        /// - Parameters:
+        ///   - type: The type of turn detection to use.
+        ///   - threshold:  The VAD activation threshold.
+        ///   - prefixPaddingMs:  Audio prefix padding.
+        ///   - silenceDurationMs: Silence duration for turn detection.
 		public init(
 			type: TurnDetectionType,
 			threshold: Double,
@@ -55,8 +84,11 @@ public struct Session: Codable, Equatable, Sendable {
 		}
 	}
 
+	/// Represents a tool (function) that can be used by the model.
 	public struct Tool: Codable, Equatable, Sendable {
+		/// Defines the parameters for a function in JSON Schema format.
 		public struct FunctionParameters: Codable, Equatable, Sendable {
+			//Nested struct to define tool parameters. All properties are optional to handle various tool parameters
 			public var type: JSONType
 			public var properties: [String: Property]?
 			public var required: [String]?
@@ -90,6 +122,7 @@ public struct Session: Codable, Equatable, Sendable {
 			}
 
 			public struct Property: Codable, Equatable, Sendable {
+				// Properties within tool parameters. All properties are optional here as well.
 				public var type: JSONType
 				public var description: String?
 				public var format: String?
@@ -138,6 +171,7 @@ public struct Session: Codable, Equatable, Sendable {
 				}
 
 				public struct Items: Codable, Equatable, Sendable {
+					//Items struct defines data types like arrays and object properties
 					public var type: JSONType
 					public var properties: [String: Property]?
 					public var pattern: String?
@@ -177,7 +211,8 @@ public struct Session: Codable, Equatable, Sendable {
 					}
 				}
 			}
-
+			
+			/// Enum represents JSON data types, including those defined by the JSON Schema.
 			public enum JSONType: String, Codable, Sendable {
 				case integer
 				case string
@@ -188,34 +223,40 @@ public struct Session: Codable, Equatable, Sendable {
 				case null
 			}
 		}
-
-		/// The type of the tool.
-		public var type: String
-		/// The name of the function.
-		public var name: String
-		/// The description of the function.
-		public var description: String
-		/// Parameters of the function in JSON Schema.
-		public var parameters: FunctionParameters
+        /// The type of the tool (e.g., "function").
+        public var type: String
+        /// The name of the tool/function.
+        public var name: String
+        /// A description of the tool/function.
+        public var description: String
+        /// The parameters the tool/function accepts, defined in JSON Schema format.
+        public var parameters: FunctionParameters
 	}
 
-	public enum ToolChoice: Equatable, Sendable {
-		case auto
-		case none
-		case required
-		case function(String)
+    /// Controls how the model chooses to use tools.
+    public enum ToolChoice: Equatable, Sendable {
+        /// The model automatically decides whether to use tools.
+        case auto
+        /// The model does not use tools.
+        case none
+        /// The model is required to use a tool.
+        case required
+        /// The model uses the specified function.
+        case function(String)
 
-		public init(function name: String) {
-			self = .function(name)
-		}
+        /// Initializes a `.function` ToolChoice with the given function name.
+        /// - Parameter name: The name of the function to use.
+        public init(function name: String) {
+            self = .function(name)
+        }
 	}
 
-	/// The unique ID of the session.
-	public var id: String?
-	/// The default model used for this session.
-	public var model: String
-	/// The set of modalities the model can respond with.
-	public var modalities: [Modality]
+    /// The unique ID of the session (optional).
+    public var id: String?
+    /// The default language model for the session.
+    public var model: String
+    /// The allowed modalities for responses (e.g., [.text, .audio]).  Defaults to both text and audio.
+    public var modalities: [Modality]
 	/// The default system instructions.
 	public var instructions: String
 	/// The voice the model uses to respond.
@@ -237,6 +278,21 @@ public struct Session: Codable, Equatable, Sendable {
 	/// Maximum number of output tokens.
 	public var maxOutputTokens: Int?
 
+	/// Initializes a new session with the provided configuration.
+    /// - Parameters:
+    ///   - id: The unique ID of the session (optional).
+    ///   - model: The default language model for the session.
+    ///   - tools: Available tools for the session.
+    ///   - instructions: Default system instructions for the session.
+    ///   - voice: The preferred voice for audio responses. Defaults to `.alloy`.
+    ///   - temperature: Sampling temperature for response generation (0.0 - 1.0). Defaults to 1.0.
+    ///   - maxOutputTokens: Maximum number of output tokens (optional).
+    ///   - toolChoice: How the model chooses tools. Defaults to `.auto`.
+    ///   - turnDetection: Configuration for turn detection (optional).
+    ///   - inputAudioFormat:  Format for the input audio. Defaults to `.pcm16`.
+    ///   - outputAudioFormat: Format for the output audio. Defaults to `.pcm16`
+    ///   - modalities:  Allowed response modalities. Defaults to [.text, .audio].
+    ///   - inputAudioTranscription: Configuration for audio transcription (optional).
 	public init(
 		id: String? = nil,
 		model: String,
@@ -267,6 +323,8 @@ public struct Session: Codable, Equatable, Sendable {
 		self.inputAudioTranscription = inputAudioTranscription
 	}
 }
+
+// MARK: - Codable extension for Session.ToolChoice
 
 extension Session.ToolChoice: Codable {
 	private enum FunctionCall: Codable {
